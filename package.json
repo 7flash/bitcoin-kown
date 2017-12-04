@@ -1,0 +1,11 @@
+{
+  "name": "bitcoin-kown",
+  "version": "0.0.1",
+  "dependencies": {
+    "bip39": "^2.4.0",
+    "bitcoinjs-lib": "^3.3.1",
+    "bitcore-lib": "^0.15.0",
+    "chai": "^4.1.2",
+    "mocha": "^4.0.1"
+  }
+}
