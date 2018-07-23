@@ -8,7 +8,7 @@ const logReport = report => {
 
 const watcherSettings = {
 	extendedPublicKey: 'xpub6BfKpqjTwvH21wJGWEfxLppb8sU7C6FJge2kWb9315oP4ZVqCXG29cdUtkyu7YQhHyfA5nt63nzcNZHYmqXYHDxYo8mm1Xq1dAC7YtodwUR',
-	numberOfInvestors: 5,
+	numberOfInvestors: 7,
 	timeoutInterval: 1000*10,
 	processorCallback: processPayment,
 	reportCallback: logReport

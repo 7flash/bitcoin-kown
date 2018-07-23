@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "dependencies": {
     "bitcore-lib": "^0.15.0",
+    "lowdb": "^1.0.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",
     "sinon": "^4.1.2",

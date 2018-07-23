@@ -127,10 +127,11 @@ const checkoutAddress = address => {
 
 		transactions.forEach(tx => {
 			tx.vout.forEach(txout => {
-				if(txout.scriptPubKey.addresses[0] === address) {
+				if(txout.scriptPubKey && txout.scriptPubKey.addresses && txout.scriptPubKey.addresses[0] === address) {
 					payments.push({
 						address: address,
-						txid: tx.txid
+						txid: tx.txid,
+						tx
 					});
 				}
 			})
