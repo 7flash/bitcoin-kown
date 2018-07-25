@@ -29,7 +29,8 @@ const main = async () => {
 
   const tx = btc.splitTransaction(rawTransaction)
 
-  console.log(tx)
+  console.log(tx.outputs[0].amount.toString())
+  console.log(tx.outputs[0].script.toString())
 
   return
 
