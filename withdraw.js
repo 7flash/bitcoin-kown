@@ -12,7 +12,7 @@ const createTransport = () => {
       next: event => {
         if (event.type === 'add') {
           subscriber.unsubscribe()
-          Transport.open(e.descriptor).then(resolve)
+          Transport.open(event.descriptor).then(resolve)
         }
       }
     })
