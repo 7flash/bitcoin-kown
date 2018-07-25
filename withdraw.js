@@ -29,6 +29,10 @@ const main = async () => {
 
   const tx = btc.splitTransaction(rawTransaction)
 
+  console.log(tx)
+
+  return
+
   const outputScript = btc.serializeTransactionOutputs(tx).toString('hex')
 
   console.log(`Output script: ${outputScript}`)
