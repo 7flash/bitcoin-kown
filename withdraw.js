@@ -33,8 +33,12 @@ const main = async () => {
 
   console.log(`Output script: ${outputScript}`)
 
-  const result = await btc.createPaymentTransactionNew([[tx, 1]], ["0/5"], undefined, outputScript)
-
-  console.log(`Result: ${result}`)
+  try {
+    const result = await btc.createPaymentTransactionNew([[tx, 1]], ["0/5"], undefined, outputScript)
+    console.log(`Result: ${result}`)
+  } catch (e) {
+    console.log(e)
+    console.log(e.statusCode)
+  }
 }
 main()
