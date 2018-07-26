@@ -93,6 +93,8 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
 
       const transaction = ledger.splitTransaction(rawTransaction)
 
+      console.log(JSON.stringify(transaction))
+
       inputs.push([transaction, 1])
       keys.push(`0/${index}`)
       amount += transaction.outputs[1].amount
@@ -141,8 +143,8 @@ const main = async () => {
     ledger,
     xpubkey,
     fundsRecipient,
-    startAccount: 0,
-    endAccount: 10
+    startAccount: 5,
+    endAccount: 6
   })
 }
 main()
