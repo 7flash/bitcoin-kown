@@ -1,8 +1,120 @@
+const bitcoin = require("./bitcoin")
+const r2 = require("r2")
+
+const bitcore = require('bitcore-lib')
+const BufferWriter = bitcore.encoding.BufferWriter
+const Output = bitcore.Transaction.Output
+
 const Transport = require("@ledgerhq/hw-transport-node-hid").default
 const AppBtc = require("@ledgerhq/hw-app-btc").default
 
-const rawTransaction = '01000000012032b87df2124861a31f94509723feb0a0bb5198c05e728121092a006fc33f44460000006b483045022100f3d74eb373c3e2fc5020396e6d401f34bb19e46c4481785b3e3ff2eebb10ba03022079094e4946c32587778f57ed679153c822fc0d950ebff06c9d86170db8a5ef1d012103f0f0058b236ed5a3c0f343c276391f7aeeef60ff4096821835f75881c0a1e32effffffff0280969800000000001976a91442edaf287ac19f6b803b4c275f173b037363b60c88ace5fdad00000000001976a914bb915be5439b9788d9700675c516920d3bbc9cb788ac00000000'
-const recipient = '1AiPz9nWi8o7BUP4b2FT9n7Sf8Er9694G9'
+const fundsRecipient = '3FNuPJC5hmALBQGxwheStkUp9zTt4WtzME'
+const xpubkey = 'xpub6DAd9Quenw1y3QTX8NLKgEKFaNdYWWXcG9L2U9FMmkiHip1nbwPhSKTQVdGe1fFg5giQA2z6BoUCMgiciowHxYuu7JNjFBGhfPUMN7VUqM9'
+
+const checkTransactions = (transactions, address) => {
+  const emptyFlag = isEmpty(transactions)
+  const validFlag = isValid(transactions, address)
+
+  if (emptyFlag) {
+    console.log(`${address} is empty`)
+  } else {
+    console.log(`${address} has transactions`)
+
+    if (!validFlag) {
+      console.log(`${address} has unexpected transactions`)
+    }
+  }
+
+  return !emptyFlag && validFlag
+}
+
+const isValid = (transactions, address) => {
+  if (typeof transactions !== 'object') return
+  if (transactions.length !== 1) return
+  if (transactions[0].vout.length !== 2) return
+  if (typeof transactions[0].vout[1].scriptPubKey !== 'object') return
+  if (typeof transactions[0].vout[1].scriptPubKey.addresses !== 'object') return
+  if (transactions[0].vout[1].scriptPubKey.addresses[0] !== address) return
+
+  return true
+}
+
+const isEmpty = (transactions) => {
+  return (typeof transactions === 'object' && transactions.length === 0) ? true : false
+}
+
+const getTransactions = async (address) => {
+  const transactions = await r2(`https://insight.bitpay.com/api/txs?address=${address}`).json
+
+  return transactions.txs
+}
+
+const getRawTransaction = async (txid) => {
+  const rawTransaction = await r2(`https://blockchain.info/tx/${txid}?format=hex`).text
+
+  return rawTransaction
+}
+
+const getOutputScript = ({ fundsRecipient, amount }) => {
+  const transaction = new bitcore.Transaction()
+
+  transaction.to(fundsRecipient, amount)
+
+  const outputs = transaction.toObject().outputs
+
+  const writer = new BufferWriter()
+
+  writer.writeVarintNum(outputs.length)
+
+  for (let output of outputs) {
+    (new Output.fromObject(output)).toBufferWriter(writer)
+  }
+
+  return writer.toBuffer().toString('hex')
+}
+
+const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipient }) => {
+  let inputs = []
+  let keys = []
+  let outputScript = ''
+  let amount = 0
+
+  for (let index = startAccount; index < endAccount; index++) {
+    const address = bitcoin.createAccount(xpubkey, index).address
+
+    const transactions = await getTransactions(address)
+
+    const checked = checkTransactions(transactions, address)
+
+    if (checked) {
+      const txid = transactions[0].txid
+
+      const rawTransaction = await getRawTransaction(txid)
+
+      const transaction = ledger.splitTransaction(rawTransaction)
+
+      inputs.push([transaction, 1])
+      keys.push(`0/${index}`)
+      amount += transaction.outputs[1].amount
+    }
+  }
+
+  console.log(`Amount: ${amount.toString()}`)
+  console.log(`Keys: ${keys.toString()}`)
+  console.log(`Inputs: ${inputs.length}`)
+
+  outputScript = getOutputScript({ fundsRecipient, amount })
+
+  console.log(`Output script: ${outputScript.toString()}`)
+
+  const withdrawTransaction = await ledger.createPaymentTransactionNew(inputs, keys, undefined, outputScript)
+
+  console.log(`Withdraw transaction is ready for broadcasting`)
+
+  console.log('------------------------------------------------')
+  console.log(withdrawTransaction)
+  console.log('------------------------------------------------')
+}
 
 const createTransport = () => {
   return new Promise((resolve, reject) => {
@@ -23,22 +135,14 @@ const main = async () => {
   console.log('Waiting for ledger...')
 
   const transport = await createTransport()
-  const btc = new AppBtc(transport)
+  const ledger = new AppBtc(transport)
 
-  console.log('Parsing transaction outputs...')
-
-  const tx = btc.splitTransaction(rawTransaction);
-
-  const outputScript = btc.serializeTransactionOutputs(tx).toString('hex')
-
-  console.log(`Output script: ${outputScript}`)
-
-  try {
-    const result = await btc.createPaymentTransactionNew([[tx, 1]], ["0/0"], undefined, '01905f0100000000001976a91472a5d75c8d2d0565b656a5232703b167d50d5a2b88ac')
-    console.log(`Result: ${result}`)
-  } catch (e) {
-    console.log(e)
-    console.log(e.statusCode)
-  }
+  await withdraw({
+    ledger,
+    xpubkey,
+    fundsRecipient,
+    startAccount: 0,
+    endAccount: 10
+  })
 }
 main()
