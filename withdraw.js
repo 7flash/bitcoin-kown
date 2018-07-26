@@ -95,11 +95,13 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
 
       console.log(JSON.stringify(transaction))
 
-      inputs.push([transaction, 1])
+      inputs.push([transaction, 0])
       keys.push(`0/${index}`)
-      amount += transaction.outputs[1].amount
+      amount += transactions[0].vout[1].value
     }
   }
+
+  amount = amount * 10**8
 
   console.log(`Amount: ${amount.toString()}`)
   console.log(`Keys: ${keys.toString()}`)
