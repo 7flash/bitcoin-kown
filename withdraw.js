@@ -1,5 +1,7 @@
 const bitcoin = require("./bitcoin")
+
 const r2 = require("r2")
+const argv = require('yargs').argv
 
 const bitcore = require('bitcore-lib')
 const BufferWriter = bitcore.encoding.BufferWriter
@@ -8,7 +10,6 @@ const Output = bitcore.Transaction.Output
 const Transport = require("@ledgerhq/hw-transport-node-hid").default
 const AppBtc = require("@ledgerhq/hw-app-btc").default
 
-const fundsRecipient = '3FNuPJC5hmALBQGxwheStkUp9zTt4WtzME'
 const xpubkey = 'xpub6DAd9Quenw1y3QTX8NLKgEKFaNdYWWXcG9L2U9FMmkiHip1nbwPhSKTQVdGe1fFg5giQA2z6BoUCMgiciowHxYuu7JNjFBGhfPUMN7VUqM9'
 
 const checkTransactions = (transactions, address) => {
@@ -136,6 +137,9 @@ const createTransport = () => {
 }
 
 const main = async () => {
+  if (typeof argv.recipient !== 'string' || typeof argv.start !== 'number' || typeof argv.end !== 'number')
+    return console.log('node withdraw.js --recipient=XX --start=5 --end=6')
+
   console.log('Waiting for ledger...')
 
   const transport = await createTransport()
@@ -144,9 +148,9 @@ const main = async () => {
   await withdraw({
     ledger,
     xpubkey,
-    fundsRecipient,
-    startAccount: 5,
-    endAccount: 6
+    fundsRecipient: argv.recipient,
+    startAccount: argv.start,
+    endAccount: argv.end
   })
 }
 main()
