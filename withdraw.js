@@ -94,8 +94,6 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
 
       const transaction = ledger.splitTransaction(rawTransaction)
 
-      console.log(JSON.stringify(transaction))
-
       inputs.push([transaction, 0])
       keys.push(`0/${index}`)
       amount += transactions[0].vout[1].value
@@ -111,6 +109,8 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
   outputScript = getOutputScript({ fundsRecipient, amount })
 
   console.log(`Output script: ${outputScript.toString()}`)
+
+  console.log(`Signing transaction...`)
 
   const withdrawTransaction = await ledger.createPaymentTransactionNew(inputs, keys, undefined, outputScript)
 
