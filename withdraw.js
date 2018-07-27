@@ -100,8 +100,10 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
     }
   }
 
+  const fee = (keys.length * 180 + keys.length + 44) * 20
+
   amount = amount * 10**8
-  amount -= 2484 // fee
+  amount -= fee
 
   console.log(`Amount: ${amount.toString()}`)
   console.log(`Keys: ${keys.toString()}`)
