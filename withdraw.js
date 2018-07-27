@@ -92,9 +92,9 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
 
       const rawTransaction = await getRawTransaction(txid)
 
-      const transaction = ledger.splitTransaction(rawTransaction)
+      const transaction = ledger.splitTransaction(rawTransaction, true)
 
-      inputs.push([transaction, 0])
+      inputs.push([transaction, 1])
       keys.push(`0/${index}`)
       amount += transactions[0].vout[1].value
     }
