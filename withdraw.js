@@ -116,7 +116,7 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
   console.log(`Signing transaction...`)
 
   try {
-    const withdrawTransaction = await ledger.createPaymentTransactionNew(inputs, keys, undefined, outputScript)
+    const withdrawTransaction = await ledger.createPaymentTransactionNew(inputs, keys, undefined, outputScript, 0, 1, true)
 
     console.log(`Withdraw transaction is ready for broadcasting`)
 
