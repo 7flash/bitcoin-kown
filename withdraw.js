@@ -30,18 +30,36 @@ const checkTransactions = (transactions, address) => {
 }
 
 const isValid = (transactions, address) => {
-  if (typeof transactions !== 'object') return
-  if (transactions.length !== 1) return
-  if (transactions[0].vout.length !== 2) return
-  if (typeof transactions[0].vout[1].scriptPubKey !== 'object') return
-  if (typeof transactions[0].vout[1].scriptPubKey.addresses !== 'object') return
-  if (transactions[0].vout[1].scriptPubKey.addresses[0] !== address) return
+  if (typeof transactions !== 'object' || transactions.length !== 1 || transactions[0].vout.length !== 2)
+    return false
+
+  if (!getAddressFromOutput(transactions[0].vout[0]) || !getAddressFromOutput(transactions[0].vout[1]))
+    return false
 
   return true
 }
 
 const isEmpty = (transactions) => {
   return (typeof transactions === 'object' && transactions.length === 0) ? true : false
+}
+
+const getAddressFromOutput = (output) => {
+  if (!output || !output.scriptPubKey || !output.scriptPubKey.addresses)
+    return false
+
+  if (typeof output.scriptPubKey.addresses[0] !== 'string')
+    return false
+
+  return output.scriptPubKey.addresses[0]
+}
+
+const getOutputIndex = ({ tx, address }) => {
+  if (getAddressFromOutput(tx.vout[0]) === address)
+    return 0;
+  if (getAddressFromOutput(tx.vout[1]) === address)
+    return 1;
+
+  return null;
 }
 
 const getTransactions = async (address) => {
@@ -88,15 +106,19 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
     const checked = checkTransactions(transactions, address)
 
     if (checked) {
-      const txid = transactions[0].txid
+      const tx = transactions[0]
+
+      const txid = transaction.txid
 
       const rawTransaction = await getRawTransaction(txid)
 
       const transaction = ledger.splitTransaction(rawTransaction, true)
 
-      inputs.push([transaction, 1])
+      let outputIndex = getOutputIndex({ tx, address });
+
+      inputs.push([transaction, outputIndex])
       keys.push(`0/${index}`)
-      amount += transactions[0].vout[1].value
+      amount += transactions[0].vout[outputIndex].value
     }
   }
 
