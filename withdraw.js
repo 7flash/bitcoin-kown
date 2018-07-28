@@ -33,8 +33,8 @@ const isValid = (transactions, address) => {
   if (typeof transactions !== 'object' || transactions.length !== 1 || transactions[0].vout.length !== 2)
     return false
 
-  if (!(getAddressFromOutput(transactions[0].vout[0]) === address &&
-      getAddressFromOutput(transactions[0].vout[0]) === address))
+  if (!(getAddressFromOutput(transactions[0].vout[0]) === address ||
+      getAddressFromOutput(transactions[0].vout[1]) === address))
     return false
 
   return true
