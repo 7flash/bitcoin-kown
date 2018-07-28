@@ -69,9 +69,9 @@ const getTransactions = async (address) => {
 }
 
 const getRawTransaction = async (txid) => {
-  const rawTransaction = await r2(`https://blockchain.info/tx/${txid}?format=hex`).text
+  const rawTransaction = await r2(`https://insight.bitpay.com/api/rawtx/${txid}`).json
 
-  return rawTransaction
+  return rawTransaction.rawtx
 }
 
 const getOutputScript = ({ fundsRecipient, amount }) => {
@@ -112,9 +112,9 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
 
       const rawTransaction = await getRawTransaction(txid)
 
-      const transaction = ledger.splitTransaction(rawTransaction, true)
+      const transaction = ledger.splitTransaction(rawTransaction)
 
-      let outputIndex = getOutputIndex({ tx, address });
+      let outputIndex = getOutputIndex({ tx, address })
 
       inputs.push([transaction, outputIndex])
       keys.push(`0/${index}`)
@@ -138,7 +138,7 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
   console.log(`Signing transaction...`)
 
   try {
-    const withdrawTransaction = await ledger.createPaymentTransactionNew(inputs, keys, undefined, outputScript, 0, 1, true)
+    const withdrawTransaction = await ledger.createPaymentTransactionNew(inputs, keys, undefined, outputScript, 0, 1, false)
 
     console.log(`Withdraw transaction is ready for broadcasting`)
 
@@ -182,4 +182,3 @@ const main = async () => {
     endAccount: argv.end
   })
 }
-main()
