@@ -182,3 +182,4 @@ const main = async () => {
     endAccount: argv.end
   })
 }
+main()
