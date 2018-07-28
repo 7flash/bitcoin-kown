@@ -122,7 +122,7 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
     }
   }
 
-  const fee = (keys.length * 180 + keys.length + 44) * 20
+  const fee = (keys.length * 180 + keys.length + 44) * 10
 
   amount = amount * 10**8
   amount -= fee
@@ -138,7 +138,7 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
   console.log(`Signing transaction...`)
 
   try {
-    const withdrawTransaction = await ledger.createPaymentTransactionNew(inputs, keys, undefined, outputScript, 0, 1, false)
+    const withdrawTransaction = await ledger.createPaymentTransactionNew(inputs, keys, undefined, outputScript)
 
     console.log(`Withdraw transaction is ready for broadcasting`)
 
