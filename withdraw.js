@@ -108,7 +108,7 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
     if (checked) {
       const tx = transactions[0]
 
-      const txid = transaction.txid
+      const txid = tx.txid
 
       const rawTransaction = await getRawTransaction(txid)
 
