@@ -33,7 +33,8 @@ const isValid = (transactions, address) => {
   if (typeof transactions !== 'object' || transactions.length !== 1 || transactions[0].vout.length !== 2)
     return false
 
-  if (!getAddressFromOutput(transactions[0].vout[0]) || !getAddressFromOutput(transactions[0].vout[1]))
+  if (!(getAddressFromOutput(transactions[0].vout[0]) === address ||
+      getAddressFromOutput(transactions[0].vout[0]) === address))
     return false
 
   return true
@@ -122,7 +123,7 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
     }
   }
 
-  const fee = (keys.length * 180 + keys.length + 44) * 10
+  const fee = (keys.length * 180 + keys.length + 44) * 20
 
   amount = amount * 10**8
   amount -= fee
@@ -130,6 +131,11 @@ const withdraw = async ({ ledger, xpubkey, startAccount, endAccount, fundsRecipi
   console.log(`Amount: ${amount.toString()}`)
   console.log(`Keys: ${keys.toString()}`)
   console.log(`Inputs: ${inputs.length}`)
+
+  if (amount < 0) {
+    console.log(`Balance not enough`)
+    return;
+  }
 
   outputScript = getOutputScript({ fundsRecipient, amount })
 
