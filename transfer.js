@@ -50,6 +50,9 @@ const transfer = async () => {
 
   const outputScript = getOutputScript({ fundsRecipient: '1KT5focu1NhWxEcnfDvTxZw5Mv9Cb8uCgr', amount: 14000 })
 
+  console.log(parsedTransaction)
+  console.log(utxo)
+  
   const resultTransaction = await ledger.createPaymentTransactionNew(utxo, `44'/0'/0'/0/0`, undefined, outputScript)
 
   console.log(resultTransaction)
