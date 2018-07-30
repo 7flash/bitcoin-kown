@@ -52,8 +52,8 @@ const transfer = async () => {
 
   console.log(parsedTransaction)
   console.log(utxo)
-  
-  const resultTransaction = await ledger.createPaymentTransactionNew(utxo, `44'/0'/0'/0/0`, undefined, outputScript)
+
+  const resultTransaction = await ledger.createPaymentTransactionNew([utxo], `44'/0'/0'/0/0`, undefined, outputScript)
 
   console.log(resultTransaction)
 }
